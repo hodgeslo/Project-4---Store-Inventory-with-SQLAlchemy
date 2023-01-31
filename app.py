@@ -152,7 +152,13 @@ def app():
                     \rLast update:  {the_product.date_updated}
                         ''')
         elif menu_option == 'A':
-            name = input('Product name:  ')
+            name_error = True
+            while name_error:
+                name = input('Product name:  ')
+                if name != "" or name != " ":
+                    name_error = False
+                else:
+                    print("OOPS")
 
             price_error = True
             while price_error:
