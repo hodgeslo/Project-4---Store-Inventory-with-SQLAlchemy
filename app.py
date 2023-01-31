@@ -80,6 +80,9 @@ def add_csv():
                 session.add(new_product)
         session.commit()
 
+def backup_csv():
+    pass
+
 
 def menu():
     while True:
@@ -102,29 +105,13 @@ def display_product_by_id(product_id):
     return the_product
 
 
-def add_product_to_database(product_name, product_quantity, product_price, product_date):
+def add_product_to_database(product_name, product_price, product_quantity, product_date):
     print(product_name, product_quantity, product_price, product_date)
-    # if choice == '1':
-    #     # add book
-    #     title = input('Title: ')
-    #     author = input('Author: ')
-    #     date_error = True
-    #     while date_error:
-    #         date = input('Published Date (Ex: August 12, 2012): ')
-    #         date = clean_date(date)
-    #         if type(date) == datetime.date:
-    #             date_error = False
-    #     price_error = True
-    #     while price_error:
-    #         price = input('Price (Ex: 9.99): ')
-    #         price = clean_price(price)
-    #         if type(price) == int:
-    #             price_error = False
-    #     new_book = Book(title=title, author=author, date_published=date, price=price)
-    #     session.add(new_book)
-    #     session.commit()
-    #     print(f"Book added!")
-    #     time.sleep(1.5)
+    new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity, date_updated=product_date)
+    session.add(new_product)
+    session.commit()
+    print(f"Product added!")
+    time.sleep(1.5)
 
 
 def app():
@@ -155,7 +142,8 @@ def app():
             name_error = True
             while name_error:
                 name = input('Product name:  ')
-                if name != "" or name != " ":
+                name = name.lstrip(' ')
+                if name.isascii():
                     name_error = False
                 else:
                     print("OOPS")
