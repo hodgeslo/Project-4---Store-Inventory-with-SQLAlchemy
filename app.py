@@ -157,7 +157,7 @@ def app():
             price_error = True
             while price_error:
                 price = input('Price (Ex: 9.99): ')
-                price = clean_price('$'+price)
+                price = clean_price('$' + price)
                 if type(price) == int:
                     price_error = False
 
@@ -190,5 +190,5 @@ def app():
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-    # add_csv()
+    add_csv()
     app()
