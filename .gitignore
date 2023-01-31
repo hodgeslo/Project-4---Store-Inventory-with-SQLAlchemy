@@ -153,3 +153,4 @@ cython_debug/
 *.xml
 *.iml
 store-inventory.zip
+*.db
