@@ -170,12 +170,14 @@ def app():
                 except ValueError:
                     print(f"Oops try again. Enter a number only")
 
-            date_error = True
-            while date_error:
-                date_updated = input('Product date added: (Ex: 01/31/2023): ')
-                date_updated = clean_date(date_updated)
-                if type(date_updated) == datetime.date:
-                    date_error = False
+            # date_error = True
+            # while date_error:
+            #     date_updated = input('Product date added: (Ex: 01/31/2023): ')
+            #     date_updated = clean_date(date_updated)
+            #     if type(date_updated) == datetime.date:
+            #         date_error = False
+
+            date_updated = datetime.datetime.now()
 
             add_product_to_database(name, price, quantity_on_hand, date_updated)
         elif menu_option == 'B':
