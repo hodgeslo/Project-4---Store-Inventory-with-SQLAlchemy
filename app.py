@@ -100,7 +100,7 @@ def backup_csv():
                 csvwriter.writerow(['product_name', 'product_price', 'product_quantity', 'date_updated'])
                 for product in products:
                     csv_price = '$' + str(format(product.product_price / 100, '.2f'))
-                    csv_date = product.date_updated.strftime("%m/%d/%Y").lstrip("0")
+                    csv_date = product.date_updated.strftime("%m/").lstrip("0") + product.date_updated.strftime("%d/").lstrip("0") + product.date_updated.strftime("%Y")
                     csvwriter.writerow(
                         [product.product_name, csv_price, product.product_quantity, csv_date])
             file_exists_error = False
