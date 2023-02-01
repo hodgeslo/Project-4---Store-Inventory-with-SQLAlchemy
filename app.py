@@ -167,6 +167,7 @@ def app():
                 name = input('Product name:  ')
                 name = name.lstrip(' ')
                 if name.isascii():
+                    print(session.query(Product).filter(Product.product_name == name))
                     name_error = False
                 else:
                     print("OOPS")
