@@ -1,5 +1,7 @@
 import os
-from models import (Base, session, Product, engine)
+
+import models
+from models import (Base, session, Product, engine, update, table)
 import csv
 import datetime
 import time
@@ -101,11 +103,31 @@ def backup_csv():
                 for product in products:
                     csv_price = '$' + str(format(product.product_price / 100, '.2f'))
                     csv_date = product.date_updated.strftime("%m/").lstrip("0") + product.date_updated.strftime("%d/").lstrip("0") + product.date_updated.strftime("%Y")
-                    csvwriter.writerow(
-                        [product.product_name, csv_price, product.product_quantity, csv_date])
+                    csvwriter.writerow([product.product_name, csv_price, product.product_quantity, csv_date])
             file_exists_error = False
             print("'backup.csv' has been saved!")
             time.sleep(1.5)
+
+
+def display_product_by_id(product_id):
+    the_product = session.query(Product).filter(Product.product_id == product_id).first()
+    return the_product
+
+
+def add_product_to_database(product_name, product_price, product_quantity, product_date):
+    print(product_name, product_quantity, product_price, product_date)
+    existing_product = session.query(models.Product).filter(models.Product.product_name == product_name).first()
+    if existing_product:
+        print("record exists")
+        new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
+                              date_updated=product_date)
+    else:
+        new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
+                              date_updated=product_date)
+    session.add(new_product)
+    session.commit()
+    print(f"Product added!")
+    time.sleep(1.5)
 
 
 def menu():
@@ -122,25 +144,6 @@ def menu():
             return menu_option
         else:
             input('Choose one of the options above. Press Enter to try again. ')
-
-
-def display_product_by_id(product_id):
-    the_product = session.query(Product).filter(Product.product_id == product_id).first()
-    return the_product
-
-
-def add_product_to_database(product_name, product_price, product_quantity, product_date):
-    print(product_name, product_quantity, product_price, product_date)
-    existing_product = session.query(Product.product_name).filter(Product.product_name == product_name).first()
-    if existing_product:
-        print("record exists")
-
-    new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
-                          date_updated=product_date)
-    session.add(new_product)
-    session.commit()
-    print(f"Product added!")
-    time.sleep(1.5)
 
 
 def app():
@@ -191,13 +194,6 @@ def app():
                         quantity_error = False
                 except ValueError:
                     print(f"Oops try again. Enter a number only")
-
-            # date_error = True
-            # while date_error:
-            #     date_updated = input('Product date added: (Ex: 01/31/2023): ')
-            #     date_updated = clean_date(date_updated)
-            #     if type(date_updated) == datetime.date:
-            #         date_error = False
 
             date_updated = datetime.date.today()
 

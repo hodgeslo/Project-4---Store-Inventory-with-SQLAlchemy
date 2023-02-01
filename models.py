@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date
+from sqlalchemy import create_engine, Column, Integer, String, Date, update, table
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 engine = create_engine('sqlite:///inventory.db', echo=False)
