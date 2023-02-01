@@ -5,7 +5,6 @@ import datetime
 import time
 
 
-
 def clean_date(date_str):
     split_date = date_str.split('/')
     try:
@@ -85,26 +84,26 @@ def add_csv():
 
 def backup_csv():
     backup_csv_filename = 'backup.csv'
-    if not os.path.exists('backup.csv'):
-        # print("File exists. Creating backup copy")
-        # date_append = datetime.date.today()
-        # os.rename('backup.csv', f'{date_append}_backup.csv')
-        #header = session.query(Product)
-        print(Product.product_id)
-        with open(backup_csv_filename, 'w', newline='') as csvfile:
-            backup_write = csv.writer(csvfile, delimiter=',')
-            header_row = session.query(Product)
-            backup_write.writerow(header_row.product_id, header_row.product_name, header_row.product_quantity, header_row.product_price)
-            for product in session.query(Product):
-                pass
-
-        #     print(product.product_id)
-    else:
-        print("file exists")
-        # print(datetime.date.today())
-        # for product in session.query(Product):
-        #     print(product.product_id)
-
+    products = session.query(Product).all()
+    file_exists_error = True
+    while file_exists_error:
+        if os.path.exists(backup_csv_filename):
+            print("File exists! Renaming existing file by appending '_old'")
+            os.replace(backup_csv_filename, 'backup_old.csv')
+            continue
+        else:
+            print("Writing new backup.csv")
+            with open(backup_csv_filename, 'w', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=',')
+                csvwriter.writerow(['product_name', 'product_price', 'product_quantity', 'date_updated'])
+                for product in products:
+                    csv_price = '$' + str(format(product.product_price / 100, '.2f'))
+                    csv_date = product.date_updated.strftime("%m/%d/%Y").lstrip("0")
+                    csvwriter.writerow(
+                        [product.product_name, csv_price, product.product_quantity, csv_date])
+            file_exists_error = False
+            print("'backup.csv' has been saved!")
+            time.sleep(1.5)
 
 
 def menu():
@@ -148,10 +147,8 @@ def app():
                 id_options.append(product.product_id)
             id_error = True
             while id_error:
-                id_choice = input(f'''
-                                \nID Options:  {id_options}
-                                \rBook ID:  
-                                ''')
+                print(f"ID Options:  {id_options}")
+                id_choice = input(f"Product ID:  ")
                 id_choice = clean_id(id_choice, id_options)
                 if type(id_choice) == int:
                     id_error = False
@@ -199,7 +196,7 @@ def app():
 
             add_product_to_database(name, price, quantity_on_hand, date_updated)
         elif menu_option == 'B':
-            pass
+            backup_csv()
         else:
             print(f"Quitting application...")
             time.sleep(1.5)
@@ -208,6 +205,6 @@ def app():
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-    #add_csv()
-    #app()
-    backup_csv()
+    # add_csv()
+    app()
+
