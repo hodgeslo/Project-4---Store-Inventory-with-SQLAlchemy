@@ -1,7 +1,9 @@
+import os
 from models import (Base, session, Product, engine)
 import csv
 import datetime
 import time
+
 
 
 def clean_date(date_str):
@@ -82,16 +84,36 @@ def add_csv():
 
 
 def backup_csv():
-    pass
+    backup_csv_filename = 'backup.csv'
+    if not os.path.exists('backup.csv'):
+        # print("File exists. Creating backup copy")
+        # date_append = datetime.date.today()
+        # os.rename('backup.csv', f'{date_append}_backup.csv')
+        #header = session.query(Product)
+        print(Product.product_id)
+        with open(backup_csv_filename, 'w', newline='') as csvfile:
+            backup_write = csv.writer(csvfile, delimiter=',')
+            header_row = session.query(Product)
+            backup_write.writerow(header_row.product_id, header_row.product_name, header_row.product_quantity, header_row.product_price)
+            for product in session.query(Product):
+                pass
+
+        #     print(product.product_id)
+    else:
+        print("file exists")
+        # print(datetime.date.today())
+        # for product in session.query(Product):
+        #     print(product.product_id)
+
 
 
 def menu():
     while True:
         print('''
         \nINVENTORY MANAGEMENT
-        \rV) View Product by ID
-        \rA) Add new product
-        \rB) Backup the database
+        \rV) View a single product's inventory
+        \rA) Add a new product to the database
+        \rB) Make a backup of the entire inventory
         \rQ) Quit
         ''')
         menu_option = input('What would you like to do? ').upper()
@@ -186,5 +208,6 @@ def app():
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-    add_csv()
-    app()
+    #add_csv()
+    #app()
+    backup_csv()
