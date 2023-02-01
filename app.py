@@ -131,6 +131,10 @@ def display_product_by_id(product_id):
 
 def add_product_to_database(product_name, product_price, product_quantity, product_date):
     print(product_name, product_quantity, product_price, product_date)
+    existing_product = session.query(Product.product_name).filter(Product.product_name == product_name).first()
+    if existing_product:
+        print("record exists")
+
     new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
                           date_updated=product_date)
     session.add(new_product)
@@ -167,7 +171,7 @@ def app():
                 name = input('Product name:  ')
                 name = name.lstrip(' ')
                 if name.isascii():
-                    print(session.query(Product).filter(Product.product_name == name))
+                    print(session.query(Product.product_name).filter(Product.product_name == name).first())
                     name_error = False
                 else:
                     print("OOPS")
@@ -208,6 +212,6 @@ def app():
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-    add_csv()
+    # add_csv()
     app()
 
