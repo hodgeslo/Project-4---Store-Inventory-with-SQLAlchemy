@@ -80,6 +80,7 @@ def add_csv():
                 session.add(new_product)
         session.commit()
 
+
 def backup_csv():
     pass
 
@@ -107,7 +108,8 @@ def display_product_by_id(product_id):
 
 def add_product_to_database(product_name, product_price, product_quantity, product_date):
     print(product_name, product_quantity, product_price, product_date)
-    new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity, date_updated=product_date)
+    new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
+                          date_updated=product_date)
     session.add(new_product)
     session.commit()
     print(f"Product added!")
