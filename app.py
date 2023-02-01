@@ -66,6 +66,8 @@ def clean_id(id_str, options):
 
 
 def add_csv():
+    session.query(Product).delete()
+    session.commit()
     with open('inventory.csv') as csvfile:
         data = csv.reader(csvfile)
         next(data)  # <<< skip header row
@@ -192,7 +194,7 @@ def app():
             #     if type(date_updated) == datetime.date:
             #         date_error = False
 
-            date_updated = datetime.datetime.now()
+            date_updated = datetime.date.today()
 
             add_product_to_database(name, price, quantity_on_hand, date_updated)
         elif menu_option == 'B':
@@ -205,6 +207,6 @@ def app():
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-    # add_csv()
+    add_csv()
     app()
 
