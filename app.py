@@ -114,21 +114,21 @@ def display_product_by_id(product_id):
     return the_product
 
 
-def add_product_to_database(product_name, product_price, product_quantity, product_date):
-    print(product_name, product_quantity, product_price, product_date)
-    existing_product = session.query(models.Product).filter(models.Product.product_name == product_name).first()
-    print(existing_product)
-    if existing_product:
+def add_product_to_database(productname, productprice, productquantity, productdate):
+    print(productname, productquantity, productprice, productdate)
+    if session.query(Product).filter(Product.product_name == productname).first():
         print("record exists")
-        new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
-                              date_updated=product_date)
+        stmt = (update(Product).where(Product.product_name == productname).values(product_price=productprice, product_quantity=productquantity, date_updated=productdate))
+        session.execute(stmt)
+        session.commit()
+        print(f"Product updated!")
+        time.sleep(1.5)
     else:
-        new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
-                              date_updated=product_date)
-    session.add(new_product)
-    session.commit()
-    print(f"Product added!")
-    time.sleep(1.5)
+        new_product = Product(product_name=productname, product_price=productprice, product_quantity=productquantity, date_updated=productdate)
+        session.add(new_product)
+        session.commit()
+        print(f"Product added!")
+        time.sleep(1.5)
 
 
 def menu():
@@ -175,7 +175,6 @@ def app():
                 name = input('Product name:  ')
                 name = name.lstrip(' ')
                 if name.isascii():
-                    print(session.query(Product.product_name).filter(Product.product_name == name).first())
                     name_error = False
                 else:
                     print("OOPS")
