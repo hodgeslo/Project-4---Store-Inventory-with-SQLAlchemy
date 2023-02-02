@@ -117,6 +117,7 @@ def display_product_by_id(product_id):
 def add_product_to_database(product_name, product_price, product_quantity, product_date):
     print(product_name, product_quantity, product_price, product_date)
     existing_product = session.query(models.Product).filter(models.Product.product_name == product_name).first()
+    print(existing_product)
     if existing_product:
         print("record exists")
         new_product = Product(product_name=product_name, product_price=product_price, product_quantity=product_quantity,
@@ -210,4 +211,3 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
     # add_csv()
     app()
-
