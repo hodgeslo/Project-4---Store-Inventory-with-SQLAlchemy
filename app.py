@@ -166,6 +166,7 @@ def app():
                     print(f'''
                     \nProduct ID:  {the_product.product_id}
                     \rProduct name:  {the_product.product_name}
+                    \rPrice:  $ {the_product.product_price / 100}
                     \rQuantity on hand:  {the_product.product_quantity}
                     \rLast update:  {the_product.date_updated}
                         ''')
