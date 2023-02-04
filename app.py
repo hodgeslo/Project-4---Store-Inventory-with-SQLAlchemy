@@ -210,6 +210,7 @@ if __name__ == '__main__':
     #Base.metadata.create_all(engine, checkfirst=True)
     #add_csv()
     #app()
+    print(clean_price("$21.99"))
     print(clean_price("$20.99"))
     print(clean_price("$19.99"))
     print(clean_price("$18.99"))
@@ -220,4 +221,6 @@ if __name__ == '__main__':
     print(clean_price("$13.99"))
     print(clean_price("$12.99"))
     print(clean_price("$11.99"))
+    print(clean_price("$10.99"))
+    print(clean_price("$9.99"))
 
