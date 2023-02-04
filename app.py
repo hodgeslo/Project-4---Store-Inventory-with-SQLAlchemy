@@ -5,6 +5,7 @@ from models import (Base, session, Product, engine, update, table)
 import csv
 import datetime
 import time
+from decimal import Decimal
 
 
 def clean_date(date_str):
@@ -30,7 +31,8 @@ def clean_date(date_str):
 def clean_price(price_str):
     split_price = price_str.split('$')
     try:
-        price_float = float(split_price[1])
+        # price_float = float(split_price[1]): float does strange rounding for certain values. I switched to Decimal
+        price_float = Decimal(split_price[1])
     except ValueError:
         input('''
         \n****** PRICE ERROR *****
@@ -207,20 +209,7 @@ def app():
 
 
 if __name__ == '__main__':
-    #Base.metadata.create_all(engine, checkfirst=True)
-    #add_csv()
-    #app()
-    print(clean_price("$21.99"))
-    print(clean_price("$20.99"))
-    print(clean_price("$19.99"))
-    print(clean_price("$18.99"))
-    print(clean_price("$17.99"))
-    print(clean_price("$16.99"))
-    print(clean_price("$15.99"))
-    print(clean_price("$14.99"))
-    print(clean_price("$13.99"))
-    print(clean_price("$12.99"))
-    print(clean_price("$11.99"))
-    print(clean_price("$10.99"))
-    print(clean_price("$9.99"))
+    Base.metadata.create_all(engine, checkfirst=True)
+    add_csv()
+    app()
 
