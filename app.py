@@ -70,20 +70,29 @@ def clean_id(id_str, options):
 
 
 def add_csv():
-    with open('inventory.csv') as csvfile:
-        data = csv.reader(csvfile)
-        next(data)  # <<< skip header row
-        for row in data:
-            product_in_db = session.query(Product).filter(Product.product_name == row[0]).one_or_none()
-            if product_in_db is None:
-                product_name = row[0]
-                product_price = clean_price(row[1])
-                product_quantity = row[2]
-                date_updated = clean_date(row[3])
-                new_product = Product(product_name=product_name, product_price=product_price,
-                                      product_quantity=product_quantity, date_updated=date_updated)
-                session.add(new_product)
-        session.commit()
+    csv_file_to_import = 'inventory.csv'
+    if os.path.isfile(csv_file_to_import):
+        Base.metadata.create_all(engine, checkfirst=True)
+        with open(csv_file_to_import) as csvfile:
+            data = csv.reader(csvfile)
+            next(data)  # <<< skip header row
+            for row in data:
+                product_in_db = session.query(Product).filter(Product.product_name == row[0]).one_or_none()
+                if product_in_db is None:
+                    product_name = row[0]
+                    product_price = clean_price(row[1])
+                    product_quantity = row[2]
+                    date_updated = clean_date(row[3])
+                    new_product = Product(product_name=product_name, product_price=product_price,
+                                          product_quantity=product_quantity, date_updated=date_updated)
+                    session.add(new_product)
+            session.commit()
+        return True
+    else:
+        print(f"CSV to import not found.")
+        print(f"Quitting application...")
+        time.sleep(1.5)
+        return False
 
 
 def backup_csv():
@@ -185,7 +194,6 @@ def app():
                 price = input('Price (Ex: 9.99): ')
                 price = clean_price('$' + price)
                 if type(price) == int:
-                    print(f"PRICE:  {price}")
                     price_error = False
 
             quantity_error = True
@@ -209,7 +217,6 @@ def app():
 
 
 if __name__ == '__main__':
-    Base.metadata.create_all(engine, checkfirst=True)
-    add_csv()
-    app()
+    if add_csv():
+        app()
 
