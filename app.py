@@ -68,8 +68,6 @@ def clean_id(id_str, options):
 
 
 def add_csv():
-    session.query(Product).delete()
-    session.commit()
     with open('inventory.csv') as csvfile:
         data = csv.reader(csvfile)
         next(data)  # <<< skip header row
@@ -115,7 +113,7 @@ def display_product_by_id(product_id):
 
 
 def add_product_to_database(productname, productprice, productquantity, productdate):
-    print(productname, productquantity, productprice, productdate)
+    print(productname, productprice, productquantity, productdate)
     if session.query(Product).filter(Product.product_name == productname).first():
         print("record exists")
         stmt = (update(Product).where(Product.product_name == productname).values(product_price=productprice, product_quantity=productquantity, date_updated=productdate))
@@ -185,6 +183,7 @@ def app():
                 price = input('Price (Ex: 9.99): ')
                 price = clean_price('$' + price)
                 if type(price) == int:
+                    print(f"PRICE:  {price}")
                     price_error = False
 
             quantity_error = True
@@ -208,6 +207,17 @@ def app():
 
 
 if __name__ == '__main__':
-    Base.metadata.create_all(engine)
-    # add_csv()
-    app()
+    #Base.metadata.create_all(engine, checkfirst=True)
+    #add_csv()
+    #app()
+    print(clean_price("$20.99"))
+    print(clean_price("$19.99"))
+    print(clean_price("$18.99"))
+    print(clean_price("$17.99"))
+    print(clean_price("$16.99"))
+    print(clean_price("$15.99"))
+    print(clean_price("$14.99"))
+    print(clean_price("$13.99"))
+    print(clean_price("$12.99"))
+    print(clean_price("$11.99"))
+
