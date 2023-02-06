@@ -8,6 +8,7 @@ import time
 from decimal import Decimal
 
 
+
 def clean_date(date_str):
     split_date = date_str.split('/')
     try:
@@ -76,6 +77,10 @@ def add_csv():
         with open(csv_file_to_import) as csvfile:
             data = csv.reader(csvfile)
             next(data)  # <<< skip header row
+            dupes = session.query(Product).all()
+            clean_csv = []
+            print(f"CLEAN CSV: {clean_csv}")
+            print(len(clean_csv))
             for row in data:
                 product_in_db = session.query(Product).filter(Product.product_name == row[0]).one_or_none()
                 if product_in_db is None:
@@ -85,6 +90,7 @@ def add_csv():
                     date_updated = clean_date(row[3])
                     new_product = Product(product_name=product_name, product_price=product_price,
                                           product_quantity=product_quantity, date_updated=date_updated)
+                    print(f"NEW PRODUCT: {new_product.product_name, new_product.product_quantity, new_product.product_price, new_product.date_updated}")
                     session.add(new_product)
             session.commit()
         return True
@@ -193,10 +199,16 @@ def app():
 
             price_error = True
             while price_error:
-                price = input('Price (Ex: 9.99): ')
-                price = clean_price('$' + price)
-                if type(price) == int:
-                    price_error = False
+                try:
+                    price = float(input('Price (Ex: 9.99): '))
+                    if price < 0:
+                        print(f"Enter a number greater than or equal to 0 (zero)")
+                    else:
+                        price = str(price)
+                        price = clean_price('$' + price)
+                        price_error = False
+                except ValueError:
+                    print("Enter a valid number without currency symbol (e.g. $)")
 
             quantity_error = True
             while quantity_error:
