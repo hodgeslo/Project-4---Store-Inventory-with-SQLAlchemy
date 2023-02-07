@@ -1,12 +1,10 @@
 import os
-
 import models
-from models import (Base, session, Product, engine, update, table)
+from models import (Base, session, Product, engine, update)
 import csv
 import datetime
 import time
 from decimal import Decimal
-
 
 
 def clean_date(date_str):
@@ -32,7 +30,6 @@ def clean_date(date_str):
 def clean_price(price_str):
     split_price = price_str.split('$')
     try:
-        # price_float = float(split_price[1]): float does strange rounding for certain values. I switched to Decimal
         price_float = Decimal(split_price[1])
     except ValueError:
         input('''
@@ -48,7 +45,7 @@ def clean_price(price_str):
 
 def clean_id(id_str, options):
     try:
-        product_id = int(id_str)
+        id_to_int = int(id_str)
     except ValueError:
         input('''
         \n****** ID ERROR *****
@@ -58,8 +55,8 @@ def clean_id(id_str, options):
         ''')
         return
     else:
-        if product_id in options:
-            return product_id
+        if id_to_int in options:
+            return id_to_int
         else:
             input(f'''
                     \n****** ID ERROR *****
@@ -70,28 +67,27 @@ def clean_id(id_str, options):
             return
 
 
-def add_csv():
+def add_csv_dict():
     csv_file_to_import = 'inventory.csv'
     if os.path.isfile(csv_file_to_import):
         Base.metadata.create_all(engine, checkfirst=True)
-        with open(csv_file_to_import) as csvfile:
-            data = csv.reader(csvfile)
-            next(data)  # <<< skip header row
-            dupes = session.query(Product).all()
-            clean_csv = []
-            print(f"CLEAN CSV: {clean_csv}")
-            print(len(clean_csv))
+        with open(csv_file_to_import, newline="") as csvfile:
+            data = csv.DictReader(csvfile)
             for row in data:
-                product_in_db = session.query(Product).filter(Product.product_name == row[0]).one_or_none()
-                if product_in_db is None:
-                    product_name = row[0]
-                    product_price = clean_price(row[1])
-                    product_quantity = row[2]
-                    date_updated = clean_date(row[3])
-                    new_product = Product(product_name=product_name, product_price=product_price,
-                                          product_quantity=product_quantity, date_updated=date_updated)
-                    print(f"NEW PRODUCT: {new_product.product_name, new_product.product_quantity, new_product.product_price, new_product.date_updated}")
-                    session.add(new_product)
+                product_name = row['product_name']
+                product_price = clean_price(row['product_price'])
+                product_quantity = row['product_quantity']
+                date_updated = clean_date(row['date_updated'])
+                product = session.query(Product).filter_by(product_name=product_name).first()
+                if product:
+                    if date_updated > product.date_updated:
+                        product.product_price = product_price
+                        product.product_quantity = product_quantity
+                        product.date_updated = date_updated
+                else:
+                    product = Product(product_name=product_name, product_price=product_price,
+                                      product_quantity=product_quantity, date_updated=date_updated)
+                    session.add(product)
             session.commit()
         return True
     else:
@@ -101,7 +97,7 @@ def add_csv():
         return False
 
 
-def backup_csv():
+def backup_csv_dict():
     backup_csv_filename = 'backup.csv'
     products = session.query(Product).all()
     file_exists_error = True
@@ -113,21 +109,26 @@ def backup_csv():
         else:
             print("Writing new backup.csv")
             with open(backup_csv_filename, 'w', newline='') as csvfile:
-                csvwriter = csv.writer(csvfile, delimiter=',')
-                csvwriter.writerow(['product_name', 'product_price', 'product_quantity', 'date_updated'])
+                fieldnames = ['product_name', 'product_price', 'product_quantity', 'date_updated']
+                csvwriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                csvwriter.writeheader()
                 for product in products:
                     csv_price = '$' + str(format(product.product_price / 100, '.2f'))
                     csv_date = product.date_updated.strftime("%m/").lstrip("0") + \
                                product.date_updated.strftime("%d/").lstrip("0") + \
                                product.date_updated.strftime("%Y")
-                    csvwriter.writerow([product.product_name, csv_price, product.product_quantity, csv_date])
+                    csvwriter.writerow({'product_name': product.product_name,
+                                        'product_price': csv_price,
+                                        'product_quantity': product.product_quantity,
+                                        'date_updated': csv_date
+                                        })
             file_exists_error = False
             print("'backup.csv' has been saved!")
             time.sleep(1.5)
 
 
-def display_product_by_id(product_id):
-    the_product = session.query(Product).filter(Product.product_id == product_id).first()
+def display_product_by_id(id):
+    the_product = session.query(Product).filter(Product.id == id).first()
     return the_product
 
 
@@ -135,13 +136,16 @@ def add_product_to_database(productname, productprice, productquantity, productd
     print(productname, productprice, productquantity, productdate)
     if session.query(Product).filter(Product.product_name == productname).first():
         print("record exists")
-        stmt = (update(Product).where(Product.product_name == productname).values(product_price=productprice, product_quantity=productquantity, date_updated=productdate))
+        stmt = (update(Product).where(Product.product_name == productname).values(product_price=productprice,
+                                                                                  product_quantity=productquantity,
+                                                                                  date_updated=productdate))
         session.execute(stmt)
         session.commit()
         print(f"Product updated!")
         time.sleep(1.5)
     else:
-        new_product = Product(product_name=productname, product_price=productprice, product_quantity=productquantity, date_updated=productdate)
+        new_product = Product(product_name=productname, product_price=productprice, product_quantity=productquantity,
+                              date_updated=productdate)
         session.add(new_product)
         session.commit()
         print(f"Product added!")
@@ -171,7 +175,7 @@ def app():
         if menu_option == 'V':
             id_options = []
             for product in session.query(Product):
-                id_options.append(product.product_id)
+                id_options.append(product.id)
             id_error = True
             while id_error:
                 print(f"ID Options:  {id_options}")
@@ -181,7 +185,7 @@ def app():
                     id_error = False
                     the_product = display_product_by_id(id_choice)
                     print(f'''
-                    \nProduct ID:  {the_product.product_id}
+                    \nProduct ID:  {the_product.id}
                     \rProduct name:  {the_product.product_name}
                     \rPrice:  $ {the_product.product_price / 100}
                     \rQuantity on hand:  {the_product.product_quantity}
@@ -223,7 +227,8 @@ def app():
 
             add_product_to_database(name, price, quantity_on_hand, date_updated)
         elif menu_option == 'B':
-            backup_csv()
+            # backup_csv()
+            backup_csv_dict()
         else:
             print(f"Quitting application...")
             time.sleep(1.5)
@@ -231,6 +236,5 @@ def app():
 
 
 if __name__ == '__main__':
-    if add_csv():
+    if add_csv_dict():
         app()
-
