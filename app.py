@@ -196,10 +196,10 @@ def app():
             while name_error:
                 name = input('Product name:  ')
                 name = name.lstrip(' ')
-                if name.isascii():
+                if name.isascii() and not name.isspace() and not name == '':
                     name_error = False
                 else:
-                    print("OOPS")
+                    print("You did not enter a product name. Try again. \n")
 
             price_error = True
             while price_error:
